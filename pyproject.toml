@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PDvsET_PADS"
+version = "0.1.0"
+description = "A Physics-Aware Deep Learning Safety Net for PD vs. ET Classification"
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "tensorflow>=2.10.0",
+    "numpy>=1.23.0",
+    "pandas>=1.5.0",
+    "scipy>=1.9.0",
+    "scikit-learn>=1.2.0",
+    "umap-learn>=0.5.3",
+    "matplotlib>=3.6.0",
+    "seaborn>=0.12.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yehogits/PDvsET_PADS"
+
+[tool.isort]
+profile = "black"
+known_first_party = ["src"]
+
+# This creates a "script" command so you can run 'pads-run' instead of 'python main.py'
+[project.scripts]
+pads-run = "main:main"

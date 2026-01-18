@@ -1,0 +1,22 @@
+# --- Python & Runtime ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.env
+
+# --- Project Specific Data ---
+data/
+data/raw/
+data/processed/
+*.zip
+
+# --- IDE & OS ---
+.vscode/
+.idea/
+.DS_Store
+*.swp
