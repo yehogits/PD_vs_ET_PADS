@@ -1,45 +1,39 @@
-"""
-Main Execution Pipeline
------------------------
-Orchestrates the PADS classification system.
-"""
-
-import tensorflow as tf
+import subprocess
 import sys
+import os
 
-# Check for GPU
-gpus = tf.config.list_physical_devices('GPU')
-if gpus:
-    print(f"✅ GPU Detected: {gpus}")
-else:
-    print("⚠️ No GPU detected. Running on CPU.")
-    
+def run_script(relative_path):
+    """
+    Runs a python script located at relative_path using the current
+    Python interpreter.
+    """
+    if not os.path.exists(relative_path):
+        print(f"❌ Error: Could not find file '{relative_path}'")
+        return
 
-from src import dataset, fetch, exploration, modeling
-from src.config import Paths
-from src.logger import logger_inst
-from src.utils import set_global_seed # <--- NEW IMPORT
-
-def main():
-    # 0. Reproducibility
-    set_global_seed(42) # <--- FREEZE RANDOMNESS
-    
-    logger_inst.info("=== Starting PADS Analysis Pipeline ===")
-    Paths.make_directories()
-    
-    # 1. Data Acquisition
-    fetch.fetch_data()
-    
-    # 2. Processing
-    dataset.run_processing_pipeline()
-    
-    # 3. Exploration
-    exploration.run_exploration()
-    
-    # 4. Modeling & Audit
-    modeling.run_modeling_pipeline()
-    
-    logger_inst.info("=== Pipeline Completed Successfully ===")
+    print(f"\n--- 🚀 Starting {relative_path} ---")
+    try:
+        subprocess.run([sys.executable, relative_path], check=True)
+        print(f"--- ✅ Finished {relative_path} ---")
+    except subprocess.CalledProcessError:
+        print(f"--- ⚠️  Failed to run {relative_path} ---")
 
 if __name__ == "__main__":
-    main()
+    # Define the paths
+    path_sym = os.path.join("asymetrical", "main.py")
+    path_asym = os.path.join("symetrical", "main.py")
+
+    print("Which process would you like to run?")
+    print("1: Asymmetrical")
+    print("2: Symmetrical")
+    
+    # Get user input
+    choice = input("\nEnter choice (1 or 2): ").strip()
+
+    # Logic to handle the choice
+    if choice == "1":
+        run_script(path_sym)
+    elif choice == "2":
+        run_script(path_asym)
+    else:
+        print("❌ Invalid selection. Please restart and type 1 or 2.")

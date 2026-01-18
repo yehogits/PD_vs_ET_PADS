@@ -1,0 +1,83 @@
+"""
+Interpretation Module (Bilateral)
+---------------------------------
+Visualizes what the model learned from the 12-channel input.
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from scipy.fft import fft, fftfreq
+from src.config import Paths
+from src.logger import logger_inst
+
+def plot_filter_physics(model, paths: Paths):
+    """ Do the CNN filters act like Frequency Analyzers? """
+    logger_inst.info("Running Physics Audit...")
+    try:
+        weights = model.layers[0].get_weights()[0] # Shape: (50, 12, 96)
+    except: return
+        
+    # Average across all 12 sensor channels
+    kernels = np.mean(weights, axis=1)
+    
+    n = 50
+    xf = fftfreq(n, 1/100)[:n//2]
+    # Handle the new filter count (96)
+    num_filters = kernels.shape[1]
+    avg_response = np.mean([np.abs(fft(kernels[:, i])[:n//2]) for i in range(num_filters)], axis=0)
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(xf, avg_response, color='red', linewidth=3, label='Learned Filter Response')
+    plt.axvspan(3, 6, color='blue', alpha=0.1, label='PD Band (3-6 Hz)')
+    plt.axvspan(6, 12, color='green', alpha=0.1, label='ET Band (6-12 Hz)')
+    
+    plt.title("Physics Proof: Frequency Response (Bilateral)")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Magnitude")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.xlim(0, 25)
+    
+    plt.savefig(paths.figures / "interpretation_filter_physics.png")
+    plt.close()
+
+def plot_clinical_saliency(model, X_test, y_test, paths: Paths):
+    """ Grad-CAM for 1D. """
+    logger_inst.info("Running Saliency Audit...")
+    
+    probs = model.predict(X_test, verbose=0).flatten()
+    et_indices = np.where(y_test == 1)[0]
+    if len(et_indices) == 0: return
+
+    best_candidate_idx = et_indices[np.argmax(probs[et_indices])]
+    idx = best_candidate_idx
+    tensor = tf.convert_to_tensor([X_test[idx]], dtype=tf.float32)
+    
+    with tf.GradientTape() as tape:
+        tape.watch(tensor)
+        preds = model(tensor)
+    
+    grads = tape.gradient(preds, tensor)
+    saliency = tf.reduce_max(tf.abs(grads), axis=-1)[0].numpy()
+    
+    time_axis = np.arange(400) / 100.0
+    
+    plt.figure(figsize=(12, 8))
+    
+    # Plot Watch A (Left?) - Channel 0
+    plt.subplot(2, 1, 1)
+    plt.plot(time_axis, X_test[idx][:,0], color='black', alpha=0.6, label='Watch A (Acc X)')
+    plt.scatter(time_axis, X_test[idx][:,0], c=saliency, cmap='hot', s=15, label='Attention')
+    plt.title(f"Saliency: Watch A (Patient #{idx})")
+    plt.legend()
+    
+    # Plot Watch B (Right?) - Channel 6
+    plt.subplot(2, 1, 2)
+    plt.plot(time_axis, X_test[idx][:,6], color='blue', alpha=0.6, label='Watch B (Acc X)')
+    plt.scatter(time_axis, X_test[idx][:,6], c=saliency, cmap='hot', s=15, label='Attention')
+    plt.title("Saliency: Watch B")
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig(paths.figures / "interpretation_saliency.png")
+    plt.close()

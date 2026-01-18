@@ -1,4 +1,4 @@
-# --- Python & Runtime ---
+# Python & Runtime
 __pycache__/
 *.pyc
 *.pyo
@@ -9,13 +9,14 @@ venv/
 .venv/
 .env
 
-# --- Project Specific Data ---
-data/
-data/raw/
-data/processed/
+# Project Specific Data
+*/data/
+*/data/raw/
+*/data/processed/
+
 *.zip
 
-# --- IDE & OS ---
+# IDE & OS
 .vscode/
 .idea/
 .DS_Store
