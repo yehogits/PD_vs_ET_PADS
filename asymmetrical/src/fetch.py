@@ -1,8 +1,5 @@
-"""
-Data Fetching Module
---------------------
-Automates the download of the PADS dataset from PhysioNet.
-"""
+# Data Fetching Module: Automates the download of the PADS dataset from PhysioNet.
+
 import zipfile
 import urllib.request
 from src.config import Paths

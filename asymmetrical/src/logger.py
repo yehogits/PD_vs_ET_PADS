@@ -1,8 +1,5 @@
-"""
-Logging Module
---------------
-Sets up a console logger to track the pipeline's progress.
-"""
+# Logging Module: Sets up a console logger to track the pipeline's progress.
+
 import logging
 import sys
 

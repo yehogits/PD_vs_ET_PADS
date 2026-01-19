@@ -1,8 +1,4 @@
-"""
-Main Execution Pipeline
------------------------
-Orchestrates the PADS classification system.
-"""
+# Main Execution Pipeline: Orchestrates the PADS classification system.
 
 import tensorflow as tf
 import sys
@@ -18,7 +14,7 @@ else:
 from src import dataset, fetch, exploration, modeling
 from src.config import Paths
 from src.logger import logger_inst
-from src.utils import set_global_seed # <--- NEW IMPORT
+from src.utils import set_global_seed
 
 def main():
     # 0. Reproducibility

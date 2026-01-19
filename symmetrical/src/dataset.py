@@ -1,9 +1,13 @@
 """
-Preprocessing Module (Bilateral)
---------------------------------
-Transforms raw sensor logs into clean 3D tensors for the CNN.
+Preprocessing Module (Bilateral): Transforms raw sensor logs into clean 3D tensors for the CNN.
 MODE: SYMMETRIC (12 Channels: 6 Left + 6 Right).
+
+KEY DECISIONS:
+1. 2.0Hz High-Pass Filter: Removes gravity and voluntary hand movements.
+2. 20.0Hz Low-Pass Filter: Removes sensor noise.
+3. Gain Boost (x100): Amplifies micro-tremors for the Neural Net.
 """
+
 import json
 import pandas as pd
 import numpy as np
@@ -23,10 +27,9 @@ def create_windows(data: np.ndarray, window: int, step: int) -> np.ndarray:
     return np.array([data[i : i + window] for i in range(0, len(data) - window + 1, step)])
 
 def synchronize_streams(df1: pd.DataFrame, df2: pd.DataFrame) -> np.ndarray:
-    """
-    Synchronizes two smartwatch streams to a common 100Hz timeline.
-    Returns a (N, 12) numpy array.
-    """
+    
+    # Synchronizes two smartwatch streams to a common 100Hz timeline. Returns a (N, 12) numpy array.
+    
     # 1. Find the common time window (Intersection)
     start_time = max(df1['Time'].min(), df2['Time'].min())
     end_time = min(df1['Time'].max(), df2['Time'].max())
@@ -34,12 +37,10 @@ def synchronize_streams(df1: pd.DataFrame, df2: pd.DataFrame) -> np.ndarray:
     if start_time >= end_time:
         return None
 
-    # 2. Create a master 100Hz clock
-    # We create a new index from start to end with 10ms steps (100Hz)
+    # 2. Create a master 100Hz clock: Create a new index from start to end with 10ms steps (100Hz)
     common_time = np.arange(start_time, end_time, 0.01)
     
-    # 3. Interpolate both streams to this clock
-    # We drop the 'Time' column after setting it as index for interpolation
+    # 3. Interpolate both streams to this clock: Drop the 'Time' column after setting it as index for interpolation
     def reindex_stream(df):
         df = df.drop_duplicates(subset='Time').set_index('Time')
         # Reindex to common clock and interpolate values linearly
@@ -89,8 +90,7 @@ def run_processing_pipeline() -> None:
                 # PAIRING LOGIC: We need at least 2 files (Left & Right)
                 if len(records) < 2: continue
                 
-                # Sort by filename to ensure Device A is always channels 0-5
-                # This prevents random flipping of Left/Right inputs
+                # Sort by filename to ensure Device A is always channels 0-5, preventing random flipping of Left/Right inputs
                 records.sort(key=lambda x: x.get('file_name', ''))
                 
                 # Take the first two (Assuming they are the pair)
@@ -110,8 +110,7 @@ def run_processing_pipeline() -> None:
                 merged_signal = synchronize_streams(df1, df2)
                 if merged_signal is None or len(merged_signal) < WIN: continue
                 
-                # 2. Physics Filter (Applied to all 12 channels)
-                # Note: We filter the merged array directly
+                # 2. Physics Filter (Applied to all 12 channels), filtering the merged array directly
                 filtered_signal = apply_physics_filter(merged_signal)
                 
                 # 3. Gain Boost

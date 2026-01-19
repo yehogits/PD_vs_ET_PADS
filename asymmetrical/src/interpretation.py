@@ -1,8 +1,5 @@
-"""
-Interpretation Module
----------------------
-Opens the "Black Box".
-"""
+# Interpretation Module: Opens the "Black Box".
+
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -11,7 +8,7 @@ from src.config import Paths
 from src.logger import logger_inst
 
 def plot_filter_physics(model, paths: Paths):
-    """ Do the CNN filters act like Frequency Analyzers? """
+    # Do the CNN filters act like Frequency Analyzers?
     logger_inst.info("Running Physics Audit...")
     try:
         weights = model.layers[0].get_weights()[0]
@@ -33,20 +30,19 @@ def plot_filter_physics(model, paths: Paths):
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    # --- VISUAL FIX: Zoom in on the relevant band ---
+    # Zoom in on the relevant band
     plt.xlim(0, 25) 
     
-    plt.savefig(paths.figures / "interpretation_filter_physics.png")
+    plt.savefig(paths.reports / "interpretation_filter_physics.png")
     plt.close()
 
 def plot_clinical_saliency(model, X_test, y_test, paths: Paths):
-    """ Grad-CAM for 1D. """
+    # Grad-CAM for 1D.
     logger_inst.info("Running Saliency Audit...")
     
     probs = model.predict(X_test, verbose=0).flatten()
     
-    # --- LOGIC FIX: Lower threshold to ensure we get a plot ---
-    # We take the highest probability ET case, even if it's below 0.85
+    # Take the highest probability ET case, even if it's below 0.85
     et_indices = np.where(y_test == 1)[0]
     if len(et_indices) == 0: return
 
@@ -76,5 +72,5 @@ def plot_clinical_saliency(model, X_test, y_test, paths: Paths):
     plt.legend(loc='upper right')
     plt.grid(True, alpha=0.3)
     
-    plt.savefig(paths.figures / "interpretation_saliency.png")
+    plt.savefig(paths.reports / "interpretation_saliency.png")
     plt.close()

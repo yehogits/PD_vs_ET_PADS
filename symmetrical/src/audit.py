@@ -1,10 +1,5 @@
-"""
-Audit Module (FIXED)
---------------------
-Validates model reliability beyond accuracy.
-FIX: Added standard axis labels to UMAP plot ("UMAP Dimension 1/2").
-FIX: Ensured Adversarial plot has clear % labels.
-"""
+# Audit Module: Validates model reliability beyond accuracy.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,14 +10,12 @@ from src.config import Paths
 from src.logger import logger_inst
 
 def visualize_latent_space(model, X_test, y_test, paths: Paths):
-    """
-    Extracts the 'Bottleneck' features (output of the Dense layer before probability)
-    and projects them into 2D using UMAP.
-    """
+
+    # Extracts the 'Bottleneck' features (output of the Dense layer before probability) and projects them into 2D using UMAP.
+    
     logger_inst.info("Running Geometric Audit (UMAP)...")
     
     # Extract output from the second-to-last layer (Dense 32)
-    # Using 'model.inputs' ensures Keras 3 compatibility
     extractor = models.Model(inputs=model.inputs, outputs=model.layers[-2].output)
     
     # Predict to get the "Brain Waves" (Latent Features)
@@ -46,15 +39,15 @@ def visualize_latent_space(model, X_test, y_test, paths: Paths):
     plt.xlabel("UMAP Dimension 1")
     plt.ylabel("UMAP Dimension 2")
     
-    save_path = paths.figures / "geometric_audit_umap.png"
+    save_path = paths.reports / "geometric_audit_umap.png"
     plt.savefig(save_path)
     logger_inst.info(f"UMAP Projection saved to {save_path}")
     plt.close()
 
 def run_adversarial_stress_test(model, X_test, y_test, paths: Paths):
-    """
-    Applies invisible noise (epsilon) to PD samples to see if they flip to ET.
-    """
+    
+    # Applies invisible noise (epsilon) to PD samples to see if they flip to ET.
+    
     logger_inst.info("Running Adversarial Stress-Test (FGSM)...")
     
     # Test on 100 PD patients (Label 0)
@@ -92,7 +85,7 @@ def run_adversarial_stress_test(model, X_test, y_test, paths: Paths):
     plt.ylabel("% of Misdiagnoses (PD -> ET)")
     plt.grid(True)
     
-    save_path = paths.figures / "adversarial_audit.png"
+    save_path = paths.reports / "adversarial_audit.png"
     plt.savefig(save_path)
     logger_inst.info(f"Adversarial Report saved to {save_path}")
     plt.close()

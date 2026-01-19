@@ -1,18 +1,13 @@
-"""
-Utilities Module
-----------------
-Helper functions for reproducibility and system configuration.
-"""
+# Utilities Module: Helper functions for reproducibility and system configuration.
+
 import os
 import random
 import numpy as np
 import tensorflow as tf
 
 def set_global_seed(seed=42):
-    """
-    Freezes the random state of the universe.
-    Ensures that training results are reproducible for the report.
-    """
+    # Freezes the random state of the universe, ensuring that training results are reproducible for the report.
+    
     os.environ['PYTHONHASHSEED'] = str(seed)
     random.seed(seed)
     np.random.seed(seed)

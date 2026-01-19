@@ -1,8 +1,5 @@
-"""
-Interpretation Module (Bilateral)
----------------------------------
-Visualizes what the model learned from the 12-channel input.
-"""
+# Interpretation Module: Opens the "Black Box".
+
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -11,7 +8,7 @@ from src.config import Paths
 from src.logger import logger_inst
 
 def plot_filter_physics(model, paths: Paths):
-    """ Do the CNN filters act like Frequency Analyzers? """
+    # Do the CNN filters act like Frequency Analyzers?
     logger_inst.info("Running Physics Audit...")
     try:
         weights = model.layers[0].get_weights()[0] # Shape: (50, 12, 96)
@@ -38,11 +35,11 @@ def plot_filter_physics(model, paths: Paths):
     plt.grid(True, alpha=0.3)
     plt.xlim(0, 25)
     
-    plt.savefig(paths.figures / "interpretation_filter_physics.png")
+    plt.savefig(paths.reports / "interpretation_filter_physics.png")
     plt.close()
 
 def plot_clinical_saliency(model, X_test, y_test, paths: Paths):
-    """ Grad-CAM for 1D. """
+    # Grad-CAM for 1D.
     logger_inst.info("Running Saliency Audit...")
     
     probs = model.predict(X_test, verbose=0).flatten()
@@ -79,5 +76,5 @@ def plot_clinical_saliency(model, X_test, y_test, paths: Paths):
     plt.legend()
     
     plt.tight_layout()
-    plt.savefig(paths.figures / "interpretation_saliency.png")
+    plt.savefig(paths.reports / "interpretation_saliency.png")
     plt.close()

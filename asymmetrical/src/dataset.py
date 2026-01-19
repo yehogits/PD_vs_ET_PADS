@@ -1,8 +1,5 @@
 """
-Preprocessing Module (FIXED)
-----------------------------
-Transforms raw sensor logs into clean 3D tensors for the CNN.
-FIX: Restored nested loop to capture ALL patient sessions (not just the first one).
+Preprocessing Module: Transforms raw sensor logs into clean 3D tensors for the CNN.
 
 KEY DECISIONS:
 1. 2.0Hz High-Pass Filter: Removes gravity and voluntary hand movements.
@@ -18,14 +15,13 @@ from src.config import Paths
 from src.logger import logger_inst
 
 def apply_physics_filter(data: np.ndarray, fs: float = 100.0) -> np.ndarray:
-    """ Applies 2.0Hz - 20.0Hz Bandpass Filter (The Tremor Band). """
+    # Applies 2.0Hz - 20.0Hz Bandpass Filter (The Tremor Band).
     nyq = 0.5 * fs
     b, a = butter(4, [2.0 / nyq, 20.0 / nyq], btype='band')
     return filtfilt(b, a, data, axis=0)
 
 def create_windows(data: np.ndarray, window: int, step: int) -> np.ndarray:
-    """ Slides a window over the signal. Returns shape (N_windows, 400, 6). """
-    # Faster list comprehension
+    # Slides a window over the signal. Returns shape (N_windows, 400, 6).
     return np.array([data[i : i + window] for i in range(0, len(data) - window + 1, step)])
 
 def run_processing_pipeline() -> None:
@@ -37,7 +33,7 @@ def run_processing_pipeline() -> None:
     for pf in paths.data_raw.rglob("patient_*.json"):
         try:
             d = json.load(open(pf))
-            # FIX: Added .strip() back to be safe against whitespace
+            # Added .strip() back to be safe against whitespace
             sid = str(d.get('id')).strip()
             cond = d.get('condition')
             if cond == "Essential Tremor":
@@ -66,7 +62,6 @@ def run_processing_pipeline() -> None:
             sid = str(obs.get('subject_id')).strip()
             if sid not in label_map: continue
             
-            # FIX: Loop through ALL sessions, not just [0]
             for session in obs.get('session', []):
                 for rec in session.get('records', []):
                     f_name = rec.get('file_name')
