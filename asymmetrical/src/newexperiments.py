@@ -188,10 +188,10 @@ def run_all_new_experiments(hybrid_model=None, hybrid_cm=None):
     plt.ylabel("% of Misdiagnosed Patients")
     plt.ylim(0, 100)
     plt.tight_layout()
-    plt.savefig(paths.reports / "patient_misdiagnoses_comparison_new.png")
+    plt.savefig(paths.reports / "patient_misdiagnoses_comparison.png")
     plt.close()
     
-    logger_inst.info("All new experiments completed! Check reports/patient_misdiagnoses_comparison_new.png")
+    logger_inst.info("All new experiments completed! Check reports/patient_misdiagnoses_comparison.png")
 
 if __name__ == "__main__":
     run_all_new_experiments()
